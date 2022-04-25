@@ -1,0 +1,86 @@
+
+public class Main
+{
+    
+    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+    
+	public static void main(String[] args) {
+	
+	//getTasksHandler
+	HttpClient client = HttpClient.newHttpClient();
+    URI url = URI.create("http://localhost:8080/tasks/task/");
+    HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    ArrayList<Task> tasksList = gson.fromJson(response);
+    
+    //getTaskByIdHandler
+    HttpClient client = HttpClient.newHttpClient();
+    URI url = URI.create("http://localhost:8080/tasks/task/?id=1");
+    HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    Task task = gson.fromJson(resonse);
+    
+    //createTasksHandler
+    URI url = URI.create("http://localhost:8080/tasks/task/");
+    Gson gson = new Gson();
+    String json = gson.toJson(Task task);
+    final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(task);
+    HttpRequest.newBuilder().uri(url).POST(body).build();
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString()); 
+    System.out.println(response);
+	    
+	}
+	
+	static class getTasksHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            
+            httpExchange.sendResponseHeaders(200, 0);
+            String response = gson.toJson(httpTaskManager.getListOfAllTasks);
+
+            try (OutputStream os = httpExchange.getResponseBody()) {
+                os.write(response.getBytes());
+            }
+        }
+	}
+	
+	static class getTaskByIdHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            
+            httpExchange.sendResponseHeaders(200, 0);
+            
+            String query = httpExchange.getRequestURI().getQuery;
+            Long id = Long.ParseLong(
+                query.subString(
+                    query.(indexOf("=")+1),
+                    query.lenghth());
+                    )
+            
+            String response = gson.toJson(httpTaskManager.getTaskById(id);
+
+            try (OutputStream os = httpExchange.getResponseBody()) {
+                os.write(response.getBytes());
+            }
+        }
+	}
+	
+		static class createTasksHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            
+            InputStream inputStream = httpExchange.getRequestBody();
+            String body = new String (inputStream.readAllBytes(), DEFAULT_CHARSET);
+            Task task = gson.toJson(body);
+            httpTaskManager.createTask(task);
+            
+            httpExchange.sendResponseHeaders(200, 0);
+
+            try (OutputStream os = httpExchange.getResponseBody()) {
+                os.write("task created successfully!".getBytes());
+            }
+        }
+	}
+
+	
+}
